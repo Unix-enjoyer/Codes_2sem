@@ -54,14 +54,11 @@ void tree_destroy(Tree tree) // удаляет дерево от листов к
 {
     if (tree->left) {
         tree_destroy(tree->left);
-        return;
     }
     if (tree->right) {
         tree_destroy(tree->right);
-        return;
     }
     free(tree);
-    tree = NULL;
 }
 
 void tree_remove(Tree tree, TreeItem remoVal) // удаляет элемент дерева
