@@ -22,20 +22,19 @@ Tree tree_create(TreeItem rootValue) // создание узла по пере�
 
 Tree tree_find(Tree tree, TreeItem findVal) // ищет указанное значение в дереве и 
 {                                           // возвращает указатель на него
-    TreeItem node = tree->value;
     if (tree == NULL) {
         return NULL;
     }
 
-    if (node == findVal) {
+    if (tree->value == findVal) {
         return tree;
     }
 
-    if (findVal < node) {
+    if (findVal < tree->value) {
         return tree_find(tree->left, findVal);
     }
 
-    if (findVal > node) {
+    if (findVal > tree->value) {
         return tree_find(tree->right, findVal);
     }
     return NULL;
