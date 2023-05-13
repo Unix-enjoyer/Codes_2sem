@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 
 struct _item { // структура элемента дека
     DqItem value;
@@ -95,43 +96,96 @@ void dq_destroy(Deque deque)
     free(deque);
 }
 
-void dq_pop_back(Deque deque) // обнулим ссылку на удаляемый, создав резервную, чтобы не потерять объект
+void dq_erase(Deque deque) {
+    Item start = deque->leftEnd;
+    while (start != NULL) {
+        dq_pop_front(deque);
+        start = deque->leftEnd;
+    }
+}
+
+DqItem dq_pop_max(Deque deque)
+{
+    Deque ddeque = dq_create();
+    Item start = deque->leftEnd;
+    DqItem max = deque->leftEnd->value;
+    int n = deque->size;
+    if (deque) {
+        for (int i = 0; i < n; i++) {
+            dq_push_back(ddeque, start->value);
+            if (start->value > max) {
+                max = start->value;
+            }
+            start = start->right;
+        }
+
+        dq_erase(deque);
+        start = ddeque->leftEnd;
+        for (int i = 0; i < n; i++) {
+            if (start->value != max) {
+                dq_push_back(deque, start->value);
+            }
+            start = start->right;
+        }
+        dq_destroy(ddeque);
+    }
+    return max;
+}
+
+DqItem dq_pop_back(Deque deque) // обнулим ссылку на удаляемый, создав резервную, чтобы не потерять объект
 {                             //счистим его и меняем указатель на конец, элемент 1 - тогда удаляем его, 
+    DqItem res;
     if (deque->size > 1) {    // и зануляем хвост и голову
         Item tmp = deque->rightEnd;
+        res = deque->rightEnd->value;
         Item newRightEnd = deque->rightEnd->left;
         deque->rightEnd->left->right = NULL;
         free(tmp);
         deque->rightEnd = newRightEnd;
+        deque->size -= 1;
+        return res;
     } else if (deque->size == 1) {
-        //printf("%p", deque->rightEnd);
-        //printf("%p", deque->leftEnd);
+        res = deque->rightEnd->value;
         free(deque->leftEnd);
         deque->rightEnd = NULL;
         deque->leftEnd = NULL;
+        deque->size -= 1;
+        return res;
     } else {
         printf("Deque was empty\n");
+        return INT_MIN;
     }
-    deque->size -= 1;
 }
-void dq_pop_front(Deque deque) // аналогично
+DqItem dq_pop_front(Deque deque) // аналогично
 {
+    DqItem res;
     if (deque->size > 1) {
         Item tmp = deque->leftEnd;
+        res = deque->leftEnd->value;
         Item newLeftEnd = deque->leftEnd->right;
         deque->leftEnd->right->left = NULL;
         free(tmp);
         deque->leftEnd = newLeftEnd;
+        deque->size -= 1;
+        return res;
     } else if (deque->size == 1) {
+        res = deque->rightEnd->value;
         free(deque->rightEnd);
         deque->rightEnd = NULL;
         deque->leftEnd = NULL;
+        deque->size -= 1;
+        return res;
     } else { 
         printf("Deque was empty\n");
+        return INT_MIN;
     }
-    deque->size -= 1;
 }
-
+/*то есть насколько я понял, есть дек 1 5 4 9. 
+Мы удаляем 1, проверяем, является ли она минимальным элементом. 
+Если да - вставляем в конец, если нет, ставим в начало. 
+У нас 1 - ставим в конец. Запоминаем предыдущий минимум, и идем снова: 
+дек 5 4 9 1, удаляем 5 и смотрим: он должен быть меньше всех элементов, 
+кроме последнего найденного минимума. Это не так, так что ставим еего в начало*/
 Deque linear_choose_rise(Deque deque) // последовательно: ищем min в деке, удаляем и вставляем его в конец, 
 {                                     // дальше ищем до deque->size-1. И так пока элементы не кончатся
     Item min;
@@ -168,3 +222,39 @@ Deque linear_choose_rise(Deque deque) // последовательно: ище�
     }
     return deque;
 }
+
+Deque linear_rise_sort(Deque deque)
+{
+    Deque ddeque = dq_create();
+    if (deque) {
+        while (deque->size != 0) {
+            dq_push_front(ddeque, dq_pop_max(deque));
+        }
+        Item start = ddeque->leftEnd;
+        int n = dq_size(ddeque);
+        for (int i = 0; i < n; i++) {
+            dq_push_back(deque, start->value);
+            start = start->right;
+        }
+        dq_destroy(ddeque);
+    }
+    return deque;
+}
+
+/*int main()
+{
+    Deque my = dq_create();
+    dq_push_back(my, 12);
+    dq_push_back(my, 11);
+    dq_push_back(my, 13);
+    dq_push_back(my, 8);
+    dq_push_back(my, 134);
+    printf("\n%d\n", dq_pop_back(my));
+    dq_print(my);
+    dq_pop_max(my);
+    dq_print(my);
+    linear_rise_sort(my);
+    dq_print(my);
+
+
+}*/

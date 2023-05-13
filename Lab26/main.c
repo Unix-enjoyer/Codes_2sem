@@ -40,14 +40,14 @@ int main()
             if(!deque) {
                 printf("Tree doesnt exist, use command 'help'\n"); //Если нет дерева, выводим подсказку
             } else {
-                dq_pop_back(deque);
+                printf("\nDeleted element is %d\n", dq_pop_back(deque));
             }
 
         } else if (!strcmp(s, "popfront")) {
             if(!deque) {
                 printf("Tree doesnt exist, use command 'help'\n"); //Если нет дерева, выводим подсказку
             } else {
-                dq_pop_front(deque);
+                printf("\nDeleted element is %d\n", dq_pop_front(deque));
             }
 
         } else if (!strcmp(s, "print")) {
@@ -75,7 +75,7 @@ int main()
             if(!deque) {
                 printf("Tree doesnt exist, use command 'help'\n"); //Если нет дерева, выводим подсказку
             } else {
-                deque = linear_choose_rise(deque);
+                deque = linear_rise_sort(deque);
             }
 
         } else if (!strcmp(s, "quit")) {
@@ -93,6 +93,8 @@ int main()
             printf("Command 'print' prints the vertices of the deque\n\n");
             printf("Command 'empty' checks if the deque is empty\n\n");
             printf("Command 'quit' stops the program\n\n");
+            printf("Command 'size' returns size of deque\n\n");
+            printf("Command 'sortrise' sorts tle elements of the deck in ascending order\n\n");
         } else {
             printf("\n\nThat command doesnt exist, try command 'help' \n\n");
         }
