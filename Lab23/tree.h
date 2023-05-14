@@ -2,6 +2,7 @@
 #define _TREE_H_
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 typedef int TreeItem;
@@ -23,9 +24,10 @@ void tree_print(Tree tree);
 
 int deep(Tree tree, int c);
 
-void is_avl(Tree tree);
+bool is_avl(Tree tree);
 
 void tree_destroy(Tree tree);
 
+bool avl(Tree tree, bool flag);
 
 #endif // _TREE_H_

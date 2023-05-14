@@ -18,7 +18,6 @@ int main()
         scanf("%7s", s); // Ввод символа с клавиатуры
         if (!strcmp(s, "insert")) { // Задаем корень дерева
             if (tree == NULL) {
-                printf("Add the value of the tree root:\n");
                 scanf("%d", &root);
                 tree = tree_create(root);
             }
@@ -37,10 +36,14 @@ int main()
                 tree_destroy(tree);
                 } // Рушим дерево 
                 break;
-        } else if (!strcmp(s, "run")) { // Если команда run, начинаем проверку на avl tree
+        } else if (!strcmp(s, "avl")) { // Если команда run, начинаем проверку на avl tree
             if(!tree) printf("Tree doesnt exist, use command 'help'\n"); 
             else {
-                is_avl(tree);
+                if (avl(tree, 1)) {
+                    printf("Yes\n");
+                } else {
+                    printf("NOOOOO\n");
+                }
             }
         } else if (!strcmp(s, "print")) { // Если команда print, выводим дерево
             if (!tree) printf("Tree doesnt exist, use command 'help'\n");
@@ -59,7 +62,7 @@ int main()
             printf("\n\nCommand 'insert' - if the tree doesnt exist, makes a tree. If tree was made, adds vertices in the tree\n\n");
             printf("Command 'delete num' deletes all the vertices and all her children\n\n");
             printf("Command 'print' prints the vertices of the tree\n\n");
-            printf("Command 'run' checks if the tree is avl-tree\n\n");
+            printf("Command 'avl' checks if the tree is avl-tree\n\n");
             printf("Command 'quit' stops the program\n\n");
             printf("Command 'destroy' deletes the tree completely\n\n");
         } else {

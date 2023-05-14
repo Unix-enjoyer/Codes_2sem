@@ -186,6 +186,9 @@ void tree_print(Tree tree) // Рекурсивный вызов функции
 
 int deep(Tree tree, int c) // идет на дно и меряет глубину дна
 {
+    if (!tree) {
+        return 0;
+    }
     if (tree->left == NULL && tree->right == NULL) {
         return c;
     }
@@ -198,26 +201,65 @@ int deep(Tree tree, int c) // идет на дно и меряет глубин�
         r = deep(tree->right, c + 1);
     }
 
-    if (r > l) { // дно левого и ли правого больше?
+    if (r >= l) { // дно левого и ли правого больше?
         return r;
     } else {
         return l;
     }
 }
 
-void is_avl(Tree tree) // сравнивает глубину левого и правого полудерева
+
+bool avl_tree(Tree tree)
 {
-    int left = 0;
-    int right = 0;
-    if (tree->right != NULL) {
-        right = deep(tree->right, 0);
+    if (!(tree->left) && !(tree->right)) {
+
+        return true;
+
+    } else if (tree->left && tree->right) {
+
+        if (avl_tree(tree->left) && avl_tree(tree->right)) {
+            if (deep(tree->left, 0) - deep(tree->right, 0) <= 1) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+    } else if (tree->left) {
+
+        if (deep(tree->left, 0) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    } else if (tree->right) {
+
+        if (deep(tree->right, 0) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+        
     }
-    if (tree->left != NULL) {
-        left = deep(tree->left, 0);
+    
+    
+}
+
+bool avl(Tree tree, bool flag)
+{
+    if (tree->left && flag) {
+        avl(tree->left, flag);
     }
-    if (abs(right - left) <= 1) {
-        printf("Yes");
+
+    if (tree->right && flag) {
+        avl(tree->right, flag);
+    }
+
+    if (avl_tree(tree)) {
+        return 1;
     } else {
-        printf("No");
+        return 0;
     }
+
 }

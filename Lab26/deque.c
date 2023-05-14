@@ -235,26 +235,8 @@ Deque linear_rise_sort(Deque deque)
         for (int i = 0; i < n; i++) {
             dq_push_back(deque, start->value);
             start = start->right;
-        }
-        dq_destroy(ddeque);
+        }   
     }
+    dq_destroy(ddeque);
     return deque;
 }
-
-/*int main()
-{
-    Deque my = dq_create();
-    dq_push_back(my, 12);
-    dq_push_back(my, 11);
-    dq_push_back(my, 13);
-    dq_push_back(my, 8);
-    dq_push_back(my, 134);
-    printf("\n%d\n", dq_pop_back(my));
-    dq_print(my);
-    dq_pop_max(my);
-    dq_print(my);
-    linear_rise_sort(my);
-    dq_print(my);
-
-
-}*/
