@@ -218,7 +218,7 @@ bool avl_tree(Tree tree)
     } else if (tree->left && tree->right) {
 
         if (avl_tree(tree->left) && avl_tree(tree->right)) {
-            if (deep(tree->left, 0) - deep(tree->right, 0) <= 1) {
+            if (abs((deep(tree->left, 0) - deep(tree->right, 0))) <= 1) {
                 return true;
             } else {
                 return false;
