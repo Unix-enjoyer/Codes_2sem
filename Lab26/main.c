@@ -94,7 +94,7 @@ int main()
             printf("Command 'empty' checks if the deque is empty\n\n");
             printf("Command 'quit' stops the program\n\n");
             printf("Command 'size' returns size of deque\n\n");
-            printf("Command 'sortrise' sorts tle elements of the deck in ascending order\n\n");
+            printf("Command 'sortrise' sorts the elements of the deck in ascending order\n\n");
         } else {
             printf("\n\nThat command doesnt exist, try command 'help' \n\n");
         }

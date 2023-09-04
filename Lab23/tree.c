@@ -82,7 +82,7 @@ void tree_remove(Tree tree, TreeItem remoVal) // удаляет элемент �
                     return;
                 }
 
-                if (tree->left->left == NULL && tree->left->right != NULL) { // узел 1 потомок - левый
+                if (tree->left->left == NULL && tree->left->right != NULL) { // узел 1 потомок - правый
                     Tree tmp = tree->left;
                     tree->left = tree->left->right;
                     free(tmp);
@@ -117,7 +117,7 @@ void tree_remove(Tree tree, TreeItem remoVal) // удаляет элемент �
                     return;
                 }
 
-                if (tree->right->left == NULL && tree->right->right != NULL) { // узел 1 потомок - левый
+                if (tree->right->left == NULL && tree->right->right != NULL) { // узел 1 потомок - правый
                     Tree tmp = tree->right;
                     tree->right = tree->right->right;
                     free(tmp);
