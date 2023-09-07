@@ -1,5 +1,5 @@
 #include "vector.h"
-
+#include <limits.h>
 
 int size(Vector vector) { // вернуть длину (обрааем внимание на моменте создания - не выделить лишнего, 
     return vector->size; // а то длина будет равно кол-ву элементов, а не ненулевых значений)
@@ -31,13 +31,13 @@ void paste(Vector vector, int element) { // если индекс существ
 
 void pasteZero(Vector vector, int element) { // вставляет нули, в отличии от предыдущей
     for (int i = 0; i < vector->size; i++) { // нужна для заполнения индексов, шде могут встретиться нули
-            if (vector->value[i] == -9999) { // пример: 01 запишется как 1, 00 как 0
+            if (vector->value[i] == INT_MAX) { // пример: 01 запишется как 1, 00 как 0
                 vector->value[i] = element;
                 return; // и выходим из функции
             }
         }
         vector->value = (int*) realloc(vector->value, (vector->size + 1) * sizeof(int)); // дошли сюда - значит
-        vector->value[vector->size] = -9999;
+        vector->value[vector->size] = INT_MAX;
         vector->size++; // места не нашлось, довыделим память под новый элемент
         pasteZero(vector, element); // размер увеличился, теперь спокойно ставим его
 }
