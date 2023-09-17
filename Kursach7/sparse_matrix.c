@@ -1,25 +1,62 @@
-///////////////////////////////
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include "sparse_matrix.h"
 #include <limits.h>
-#include "vector.h"
+
+int size(Vector vector) { // вернуть длину (обрааем внимание на моменте создания - не выделить лишнего, 
+    return vector->size; // а то длина будет равно кол-ву элементов, а не ненулевых значений)
+}
+
+void print(Vector vector) { // вывести подряд элементы вектора
+    printf("[ ");
+    for (int i = 0; i < vector->size; i++) {
+        printf("%d ", vector->value[i]);
+    }
+    printf("]\n\n");
+}
+
+void paste(Vector vector, int element, bool parametr) { // если индекс существует и знач не 0, то вставить в вектор
+
+    if (parametr) {
+        if (element!= 0) {
+            for (int i = 0; i < vector->size; i++) { // если не 0, значит место свободно, ставим его
+                if (vector->value[i] == INT_MAX) {
+                    vector->value[i] = element;
+                    return; // и выходим из функции
+                }
+            }
+            vector->value = (int*) realloc(vector->value, (vector->size + 1) * sizeof(int)); // дошли сюда - значит
+            vector->value[vector->size] = INT_MAX;
+            vector->size++; // места не нашлось, довыделим память под новый элемент
+            paste(vector, element, parametr); // размер увеличился, теперь спокойно ставим его
+        }
+    } else {
+        for (int i = 0; i < vector->size; i++) { // нужна для заполнения индексов, шде могут встретиться нули
+            if (vector->value[i] == INT_MAX) { // пример: 01 запишется как 1, 00 как 0
+                vector->value[i] = element;
+                return; // и выходим из функции
+            }
+        }
+        vector->value = (int*) realloc(vector->value, (vector->size + 1) * sizeof(int)); // дошли сюда - значит
+        vector->value[vector->size] = INT_MAX;
+        vector->size++; // места не нашлось, довыделим память под новый элемент
+        paste(vector, element, parametr); // размер увеличился, теперь спокойно ставим его
+    }
+}
+
+///////////////////////////////
+
 
 int numStrings(char fileName[6]) //да, это считывание кол-ва строк матрицы, я запарился
 {
     FILE* file_p; // инициализация файла
     file_p = fopen(fileName, "r");
 
-    int strings, columns; // считываем размер матрицы в отдельную строку, там будет кол-во стр и стлб черех пробел
+    int strings; // считываем размер матрицы в отдельную строку, там будет кол-во стр и стлб черех пробел
     char str_col[6]; // потом разобьем их по пробелу, функция вызывается 2 раза - на 1 она разбивает один раз по разделителю
     fgets(str_col, 6, file_p); // на 2 - запомнив, где закончила, делает это еще раз
 
     char* istr = strtok(str_col, " "); // потом преобразование в инт
     strings = atoi(istr);
 
-    istr = strtok(NULL, " ");
-    columns = atoi(istr);
     fclose(file_p);
     return strings;
 
@@ -30,12 +67,11 @@ int numColumns(char fileName[6]) //да, это считывание кол-ва
     FILE* file_p; // инициализация файла
     file_p = fopen(fileName, "r");
 
-    int strings, columns; // считываем размер матрицы в отдельную строку, там будет кол-во стр и стлб черех пробел
+    int columns; // считываем размер матрицы в отдельную строку, там будет кол-во стр и стлб черех пробел
     char str_col[6]; // потом разобьем их по пробелу, функция вызывается 2 раза - на 1 она разбивает один раз по разделителю
     fgets(str_col, 6, file_p); // на 2 - запомнив, где закончила, делает это еще раз
 
     char* istr = strtok(str_col, " "); // потом преобразование в инт
-    strings = atoi(istr);
 
     istr = strtok(NULL, " ");
     columns = atoi(istr);
@@ -65,10 +101,10 @@ int first(Vector vector) // для суммирования матриц
 
 bool inMatrix(Vector matrix, int val) 
 {
+    
     for (int k = 0; k < matrix->size; k++) {
         if (matrix->value[k] == val) {
             return true;
-            break;
         }
     }
     return false;
@@ -109,11 +145,11 @@ void makeTwoVectors(char fileName[16], Vector elements, Vector indexes) // об�
             elem = elem*10 + (ch - '0');
         }
         if (isspace(ch)) { // пробел - значит, закончилось
-            paste(elements, elem); // вставляем в массив значений
+            paste(elements, elem, 1); // вставляем в массив значений
 
             if (elem != 0) {
                 index = i * 10 + j % columns;
-                pasteZero(indexes, i * 10 + j % columns);
+                paste(indexes, i * 10 + j % columns, 0);
             }
             elem = 0;
 
@@ -129,50 +165,50 @@ void makeTwoVectors(char fileName[16], Vector elements, Vector indexes) // об�
 
     }
 
-    paste(elements, elem); // из-за eof цикл не дорабатывает последнюю итерацию
+    paste(elements, elem, 1); // из-за eof цикл не дорабатывает последнюю итерацию
 
     if (elements->size > indexes->size) { // если не совпадает длина, значит в массив индексов не добавлено последнее значение
-        pasteZero(indexes, i * 10 + j % columns);
+        paste(indexes, i * 10 + j % columns, 0);
     }
 
     fclose(file_p);
 
 }
 
-void matrixSumm(Vector elements1, Vector indexes1, Vector elements2, Vector indexes2, Vector elementsRes, Vector indelementRes) // складывает и проверяет, явл ли симметрич.
+void matrixSumm(Vector elements1, Vector indexes1, Vector elements2, Vector indexes2, Vector elementsRes, Vector indelementRes, char filename[16]) // складывает и проверяет, явл ли симметрич.
 { // у
-    int strings = numStrings("matr1");
-    int columns = numColumns("matr1");
+    int strings = numStrings(filename);
+    int columns = numColumns(filename);
     int indexx = 0;
-    for (int i = 0; i < numStrings("matr1");i++) {
-        for (int j = 0; j < numColumns("matr1");j++) {
+    for (int i = 0; i < strings; i++) {
+        for (int j = 0; j < columns;j++) {
             indexx = i * 10 + j % columns;
             //printf("%d ", indexx);
             if (inMatrix(indexes1, indexx) && inMatrix(indexes2, indexx)) {
-                paste(elementsRes, first(elements1) + first(elements2));
+                paste(elementsRes, first(elements1) + first(elements2), 1);
                 delete_el(elements1, first(elements1));
                 delete_el(elements2, first(elements2));
-                pasteZero(indelementRes, indexx);
+                paste(indelementRes, indexx, 0);
             } else if (inMatrix(indexes1, indexx)) {
-                paste(elementsRes, first(elements1));
+                paste(elementsRes, first(elements1), 1);
                 delete_el(elements1, first(elements1));
-                pasteZero(indelementRes, indexx);
+                paste(indelementRes, indexx, 0);
             } else if (inMatrix(indexes2, indexx)) {
-                paste(elementsRes, first(elements2));
+                paste(elementsRes, first(elements2), 1);
                 delete_el(elements2, first(elements2));
-                pasteZero(indelementRes, indexx);
+                paste(indelementRes, indexx, 0);
             }
         }
     }
 }
 
-void printNorm(Vector elements, Vector indexes) 
+void printNorm(Vector elements, Vector indexes, char filename[16]) 
 {
-    int strings = numStrings("matr1");
-    int columns = numColumns("matr1");
+    int strings = numStrings(filename);
+    int columns = numColumns(filename);
     int indexx;
-    for (int i = 0; i < numStrings("matr1"); i++) {
-        for (int j = 0; j < numColumns("matr1");j++) {
+    for (int i = 0; i < numStrings(filename); i++) {
+        for (int j = 0; j < numColumns(filename);j++) {
             indexx = i * 10 + j % columns;
             if (inMatrix(indexes, indexx)) {
                 printf("%d ", elements->value[indMatrix(indexes, indexx)]);
@@ -185,10 +221,10 @@ void printNorm(Vector elements, Vector indexes)
     printf("\n");
 }
 
-bool issim(Vector elements, Vector indexes)
+bool issim(Vector elements, Vector indexes, char filename[16])
 {
-    int strings = numStrings("matr1");
-    int columns = numColumns("matr1");
+    int strings = numStrings(filename);
+    int columns = numColumns(filename);
     if (strings != columns) {
         return false;
     }  
