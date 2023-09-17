@@ -11,6 +11,24 @@
         "type_traits": "c",
         "utility": "c",
         "functions.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "sparse_matrix.h": "c",
+        "atomic": "c",
+        "bit": "c",
+        "*.tcc": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "algorithm": "c",
+        "memory": "c",
+        "memory_resource": "c",
+        "random": "c",
+        "cmath": "c",
+        "limits": "c",
+        "numeric": "c",
+        "ostream": "c",
+        "stdexcept": "c",
+        "streambuf": "c",
+        "string_view": "c",
+        "typeinfo": "c"
     }
 }
