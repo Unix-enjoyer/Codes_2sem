@@ -87,7 +87,7 @@ void dlinkedList_insert(dlinkedList* dlinkedList, int position, char data) // в
             int val = current->value;
             item* elem  = nodeCreate(val);
             current->left = elem;
-            elem->value = data;
+            current->value = data;
             elem->right = current;
             dlinkedList->back = elem;
         } else if (!current->right) {
@@ -187,8 +187,6 @@ void dlinkedList_destroy(dlinkedList** dlinkedList)
         }
         ListRm_back(*dlinkedList);
         
-        //free(current->left);
-        //current = NULL;
     }
     free(*dlinkedList);
 }
@@ -211,26 +209,3 @@ void ListChangePairs(dlinkedList* dlinkedList)
     curNext = NULL;
 
 }
-
-/*int main()
-{
-    char s;
-    scanf("%c", &s);
-    dlinkedList* dlDlist = dlinkedList_create();
-    dlinkedList_pushfront(dlDlist, s);
-    dlinkedList_pushfront(dlDlist, 'A');
-    dlinkedList_pushfront(dlDlist, 'W');
-    dlinkedList_insert(dlDlist, 0, 'F');
-    dlinkedList_insert(dlDlist, 3, 'C');
-    dlinkedList_insert(dlDlist, 2, 'Y');
-    //printList(dlDlist);
-    ListRm_front(dlDlist);
-    //printDlist(dlDlist);
-    //dlinkedDlist_delete(dlDlist, 3);
-    printList(dlDlist);
-
-    ListChangePairs(dlDlist);
-    printList(dlDlist);
-
-    dlinkedList_destroy(dlDlist);
-}*/

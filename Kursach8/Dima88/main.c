@@ -69,7 +69,7 @@ int main()
 
         } else if (!strcmp(s, "quit")) {
             if (Dlist) {
-                dlinkedList_destroy(&Dlist);
+                dlinkedList_destroy(Dlist);
             }
             break;
         } else if (!strcmp(s, "insert")) {
