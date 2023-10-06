@@ -23,7 +23,7 @@ int st_size(Stack* stack) // длина стека
 {
     return stack->size;
 }
-
+//с выр-ия только с числами, буквенные константы - только постф форма
 StackElem* stackElem_create(char symbol, int number) // создаст элемент СТЕКА (с указателем на соседа)
 {
     StackElem* element = (StackElem*) malloc(sizeof(*element));
@@ -173,7 +173,7 @@ int checkPriority(char symbol) // проверит приоритет симво
         case ' ': 
             return -1;    break; // -1 значит, что это число, а не оператор
         default:
-            printf("Неправильный ввод, ведите другое мат выражение с допустимым набором операций\n");
+            //printf("Неправильный ввод, ведите другое мат выражение с допустимым набором операций\n");
             return INT_MIN;
     }
 }
@@ -229,13 +229,12 @@ void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack*
 
                 number = 0;
             }
-
-        } else if (isalpha(expression[i])) { // буква (константа) - сразу парсим
+        /* /*else if (isalpha(expression[i])) { // буква (константа) - сразу парсим
             symbol = expression[i];
-            
+            // возможно лучше убрать
             stack_push(resstack, symbol, INT_MAX); // пишем в итоговую строку
             symbol = ' ';
-
+*/
         } else if (isspace(expression[i])) { // встречен пробел
             continue;
 
