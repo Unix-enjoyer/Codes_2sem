@@ -239,7 +239,7 @@ void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack*
         } else if (isspace(expression[i])) { // встречен пробел
             continue;
 
-        } else if (ispunct(expression[i])) { // знак мат операции
+        } else if (ispunct(expression[i]) && expression[i]!= '(' && expression[i] != ')') { // знак мат операции
             symbol = expression[i];
 
             int topPriority;
@@ -267,8 +267,6 @@ void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack*
                     } else {
                         break;
                     }
-                    
-                    
                     ///////////////////////////freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
                     // на него тоже, надо удалить его, нам этот элемент не нужен больше
 
@@ -277,11 +275,12 @@ void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack*
             } // а пото еще и положить текущий надо
             symbol = ' ';
 
-        } else if (symbol == '(') { // положить в стек
+        } else if (expression[i] == '(') { // положить в стек
+            symbol = expression[i];
             stack_push(opstack, symbol, INT_MIN);
             symbol = ' ';
 
-        } else if (symbol == ')') { // ложить в стек, пока 1)
+        } else if (expression[i] == ')') { // ложить в стек, пока 1)
             StackElem* popEl = stack_pop(opstack);
 
             while (popEl->operator->symbol != '(') {
