@@ -41,18 +41,19 @@ Operator* op_create(char symbol); // создаст объект типа опе
 int checkPriority(char symbol); // проверит приоритет символа
 
 //Элемент дерева - оператор, либо число (определяется по факту)
-typedef struct _treeItem { // элемент дерева, в задаче это или опреатор или число
+typedef struct TreeItem { // элемент дерева, в задаче это или опреатор или число
     Operator* Operator; // в зависимости от того, какое поле заполнено
     int number; // будем работать или как с оператором, или как с числом
 } TreeItem;
 
-typedef struct _tree { // структура - дерево, rootvalue явл указателем на корневой узел(дерево)
+typedef struct Tree { // структура - дерево, rootvalue явл указателем на корневой узел(дерево)
     TreeItem* value;
-    struct _tree* left;
-    struct _tree* right;
-} _tree;
+    struct Tree* left;
+    struct Tree* right;
+    struct Tree* parent;
+} Tree;
 
-_tree* tree_create(); // инициализация дерева
+Tree* tree_create(); // инициализация дерева
 TreeItem* treeElem_create(int num, char symb); // создание узла (оператора или числа), смотря какое поле пусто
 
 
@@ -75,31 +76,31 @@ void stack_push(Stack* stack, char symbol, int number); // положить си
 int st_size(Stack* stack); // длина стека
 StackElem* stack_pop(Stack* stack); // вытащить элемент сверху
 void freeStackElem(StackElem* stackElem); // очистка вытащенного элемента
-
+void stack_destroy(Stack* stack); // удаление стека
 
 void dijkstra(Stack* stack, Stack* resstack, char expression[STR_SIZE], Stack* reversedstack);
 
 
-//_tree* tree_create(TreeItem rootValue);
+//Tree* tree_create(TreeItem rootValue);
 
-_tree* tree_find(_tree* tree, TreeItem findVal);
+Tree* tree_find(Tree* tree, TreeItem findVal);
 
-_tree* tree_min_node(_tree* tree);
+Tree* tree_min_node(Tree* tree);
 
-void tree_remove(_tree* tree, TreeItem remoVal);
+void tree_remove(Tree* tree, TreeItem remoVal);
 
-void tree_add(_tree* tree, TreeItem value);
+void tree_add(Tree* tree, TreeItem value);
 
-void tree_print_node(_tree* tree, int indent);
+void tree_print_node(Tree* tree, int indent);
 
-void tree_print(_tree* tree);
+void tree_print(Tree* tree);
 
-//int deep(_tree* tree, int c);
+//int deep(Tree* tree, int c);
 
-//bool is_avl(_tree* tree);
+//bool is_avl(Tree* tree);
 
-void tree_destroy(_tree* tree);
+void tree_destroy(Tree* tree);
 
-//bool avl(_tree* tree, bool flag);
+//bool avl(Tree* tree, bool flag);
 
 #endif // _MATHPARSER_H_

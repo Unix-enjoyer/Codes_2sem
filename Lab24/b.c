@@ -5,11 +5,15 @@
 
 #include "mathparser.h"
 
-int main()
-
+void factorial(long int n)
 {
-    char c = '2';
-    char cc = '2';
-    int number = c - '0';
-    printf("%d",number);
+    if (n == 0) return;
+    printf("%ld", n);
+    factorial(n-1);
 }
+
+int main()
+{
+    factorial(3);
+} 
+

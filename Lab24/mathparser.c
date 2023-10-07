@@ -58,6 +58,8 @@ void stack_push(Stack* stack, char symbol, int number) // положить в с
         stack->top = elemSt; // новый - это верх
     }
     stack->size += 1;
+
+    elemSt = NULL;
 }
 
 StackElem* stack_pop(Stack* stack) // мы его отвязали, не забыть почистить ///////////////////
@@ -76,9 +78,46 @@ StackElem* stack_pop(Stack* stack) // мы его отвязали, не заб�
     return tmp;
 }
 
-void freeStackElem(StackElem* stackElem) { // очистка вытащенного элемента
+void freeStackElem(StackElem* stackElem) // очистка вытащенного элемента
+{ 
     free(stackElem->operator);
     free(stackElem);
+}
+
+void stack_destroy(Stack* stack)
+{
+    while (stack->size > 0) {
+        StackElem* deleted = stack_pop(stack);
+        freeStackElem(deleted);
+    }
+    free(stack);
+}
+
+void stack_reverse(Stack* stack, Stack* reversed) // разворот стека
+{
+    while (st_size(stack) > 0) {
+    
+        StackElem* popEl = stack_pop(stack);
+        
+        if (popEl->number != INT_MAX) {
+            stack_push(reversed, ' ', popEl->number);
+        } else if (popEl->operator) {
+            stack_push(reversed, popEl->operator->symbol, INT_MAX);
+        }
+         // из стека в строку
+         // пишем в итоговую строку
+        freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
+        // на него тоже, надо удалить его, нам этот элемент не нужен больше
+    }
+}
+
+bool isNumSt(StackElem* elem) // определяет, с чем работаем (элемент стека): с числом или с оператором
+{
+    if (elem->number != INT_MAX) {
+        return true;
+    } else {
+        return false;
+    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 /*void dq_print(Deque deque) // идем по деку, начиная с первого элемента, пока указатель не нуль - 
@@ -177,39 +216,351 @@ int checkPriority(char symbol) // проверит приоритет симво
             return INT_MIN;
     }
 }
-/*poka nahren
+
+// Дерево
 TreeItem* treeElem_create(int num, char symb) // создание узла (оператора или числа), смотря 
 {                // какое поле не пусто
     TreeItem* item = (TreeItem*) malloc(sizeof(*item));
-    if (symb == ' ') {
+    if (num != INT_MAX) {
         item->number = num;
-        item->Operator = op_create(' '); // не оператор, а число
-    } else {
+        item->Operator = NULL;
+    } else if (symb != ' ') {
         item->Operator = op_create(symb);
         item->number = INT_MAX;
     }
 }
 
-_tree* tree_create() 
-{  // так как значение узла - структура, нужно его иниц-ать 
-// а потом уже сделать узел, присвоив значению структуру, указателям на соседей - указатели
-    _tree* tree = (_tree*) malloc(sizeof(*tree));
-    tree->value = NULL; // переданы нужные значения для создания нужной структуры
-    tree->left = NULL;
-    tree->right = NULL;
-
-    return tree;
-}
-
-bool isNum(TreeItem* item) // определяет, с чем работаем: с числом или с оператором
+bool isNumNd(Tree* node) // определяет, с чем работаем (узел дерева): с числом или с оператором
 {
-    if (item->number != INT_MAX) {
+    if (!node->value->Operator) {
         return true;
     } else {
         return false;
     }
 }
-*/
+
+TreeItem* ValueCreateByStack(Stack* stack) 
+{
+    StackElem* stElem = stack_pop(stack);
+    TreeItem* item;
+
+    if(isNumSt(stElem)) {
+        item = treeElem_create(stElem->number, ' ');
+    } else {
+        item = treeElem_create(INT_MAX, stElem->operator->symbol); // нода создана
+    }
+    freeStackElem(stElem);
+    return item;
+}
+Tree* tree_create() 
+{  // так как значение узла - структура, нужно его иниц-ать 
+// а потом уже сделать узел, присвоив значению структуру, указателям на соседей - указатели
+    Tree* tree = (Tree*) malloc(sizeof(*tree));
+    tree->value = NULL; // переданы нужные значения для создания нужной структуры
+    tree->left = NULL;
+    tree->right = NULL;
+    tree->parent = NULL;
+
+    return tree;
+}
+
+/*Tree* isVoid(Tree* node)
+{
+    Tree* voidPlace = node;
+    Tree* currentNode = node;
+
+    if (isNumNd(currentNode)) {
+
+        if (!currentNode->right) { // справа свободно?
+            voidPlace = node->right;
+            //voidPlaceParent = voidPlace;
+
+        } else if (!currentNode->left) { // а слева?
+            voidPlace = node->left;
+        }
+    }
+
+    if (!isNumNd(currentNode)) { // нода - не число
+        
+        while (voidPlace == node) {
+
+            if (!currentNode->right) { // справа свободно?
+                voidPlace = node->right;
+                //voidPlaceParent = voidPlace;
+
+            } else if (!currentNode->left) { // а слева?
+                voidPlace = node->left;
+
+            } else if (!isNumNd(currentNode->right)) { // если в правой ветке - оператор, переходим
+                isVoid(currentNode->right); // и проверяем относительно него
+
+            } else if (isNumNd(currentNode->right)) { // если в правой ветке - число, переходим
+                isVoid(currentNode->left);           // к родителю и идем влево
+                
+            } else if (currentNode->parent != NULL) { // дошли до корня
+
+                while (currentNode->parent != NULL) { //пока не дойдем до корня
+                    
+                    isVoid(currentNode->parent);
+                }
+
+            } else if (currentNode->parent == NULL) {
+                isVoid(currentNode->left);
+
+            }
+        }
+    }
+
+    return voidPlace;
+}*/
+
+/*Tree* make_tree(Stack* stack) // строит дерево по стеку
+{
+    Tree* tree = tree_create(); // 
+    tree->parent = NULL;
+
+    TreeItem* value = NULL;
+    value = ValueCreateByStack(stack);
+    tree->value = value; //корень создан
+
+    Tree* node = NULL;
+
+    Tree* voidPlace = tree->right; // свободен правый (начало) UZEL
+    Tree* voidPlaceParent = tree;
+
+    while (st_size(stack) > 0) {
+
+        node = tree_create(); // создали элемент, найдем ему место
+        node->value = ValueCreateByStack(stack);
+        node->parent = voidPlaceParent;
+
+        voidPlace = isVoid(node);
+
+        tree.
+        //voidPlaceParent = voidPlace->parent;
+
+        /*if (!isNumNd(node)) { // может в  отдельную,,,???????????????????????????
+            
+            if (!node->right) { // справа свободно?
+                voidPlace = node->right;
+                voidPlaceParent = voidPlace;
+
+            } else if (!node->left) { // а слева?
+                voidPlace = node->left;
+                voidPlaceParent = voidPlace;
+
+            } else if (node->parent) { // ладно, назад (к родителю)
+                voidPlace = node;
+
+                while (node->parent) {
+                    voidPlace = node->parent;
+                    if (voidPlace->parent) {
+                        voidPlaceParent = node->parent->parent;
+                    } else {
+                        voidPlaceParent = NULL;
+                    }
+                }
+
+            } else if (!node->parent) {
+                
+            }
+        }
+        voidPlace = item;
+
+        if (!item->Operator) { // число, тогда вернемся к родителю
+            loosePlace->parent = 
+        }*/
+
+
+/*    }
+
+}*/
+
+/*Tree* findVoid(Tree* node, Tree* tree) // (куда<-откуда)
+{
+    Tree* currentNode = tree;
+
+    if (isNumNd(currentNode)) { // создано число
+        currentNode = currentNode->parent; // вернуться и рассмотреть родиьтеля
+        findVoid(node, currentNode);
+    }
+
+    if (!isNumNd(currentNode)) { // нода - не число
+
+        if (!currentNode->right) { // справа свободно?
+            currentNode->right = node;
+            tree->right = node;
+            return node;
+
+        } else if (!currentNode->left) { // а слева?
+            currentNode->left = node;
+            tree->left = node;
+            return node;
+
+        } else if (!isNumNd(currentNode->right)) { // если в правой ветке - оператор, переходим
+            currentNode = findVoid(node, currentNode->right->right); // и проверяем относительно него
+            currentNode = findVoid(node, currentNode->right->left);
+
+        } else if (isNumNd(currentNode->right->right)) { // если в правой ветке - число, переходим
+            currentNode = findVoid(node, currentNode->right);           // к родителю и идем влево
+        
+        } else if (!isNumNd(currentNode->left)) { // если в правой ветке - оператор, переходим
+            currentNode = findVoid(node, currentNode->left->right); // и проверяем относительно него
+            currentNode = findVoid(node, currentNode->left->left);
+
+        } else if (isNumNd(currentNode->left->left)) { // если в правой ветке - число, переходим
+            currentNode = findVoid(node, currentNode->left);           // к родителю и идем влево
+        
+        }
+    }
+    return currentNode;
+}
+
+Tree* make_tree(Stack* stack) // строит дерево по стеку
+{
+    Tree* tree = tree_create(); // 
+    tree->parent = NULL;
+
+    TreeItem* value = ValueCreateByStack(stack);
+    tree->value = value; //корень создан
+    Tree* justPaste = tree; // куда только что вставили
+
+    while (st_size(stack) > 0) { //             root
+//                                         left/  ^  |right
+        value = ValueCreateByStack(stack);//   par|          элемент создан, нужно найти ему место
+        Tree* node = tree_create();//           node
+        node->value = value;//             left/     |right
+        justPaste = findVoid(node, justPaste); // сделает tree нужную ссылку(лефт/райт) на созданный элемент
+
+    }
+
+    return tree;
+}*/
+
+Tree* findVoid(Tree* node, Tree* place) // (куда<-откуда)
+{
+    if (!isNumNd(node)) { // нода - оператор
+
+        if (!place->right) { // справа свободно?
+            place->right = node; // указ на ноду
+            node->parent = place; // указ на родителя
+            return node;
+
+        } else if (!place->left) { // а слева?
+            place->left = node;
+            node->parent = place;
+            return node;
+
+        } else {
+
+            while (place->left != NULL && place->right != NULL) {
+                if (place->parent) {
+                    place = place->parent;
+                } else if (place->left) { //ROOT  вдруг нету левого?
+                    place = place->left; // есть - идем влево
+                } else {//иначе остаемся
+                }
+            }
+            if (!place->right) { // справа свободно?
+                place->right = node; // указ на ноду
+                node->parent = place; // указ на родителя
+                return node;
+
+            } else if (!place->left) { // а слева?
+                place->left = node;
+                node->parent = place;
+                return node;
+
+            }
+
+        }
+
+    } else if (isNumNd(node)) { // нода - число
+
+        if (!place->right) { // справа свободно?
+            place->right = node; // указ на ноду
+            node->parent = place; // указ на родителя
+
+            return node->parent;
+
+        } else if (!place->left) { // а слева?
+            place->left = node;
+            node->parent = place;
+
+            return node->parent;
+
+        } else {
+
+            while (place->left != NULL && place->right != NULL) {
+                if (place->parent) {
+                    place = place->parent;
+                } else if (place->left) { //ROOT  вдруг нету левого?
+                    place = place->left; // есть - идем влево
+                } else {//иначе остаемся
+                }
+            }
+            if (!place->right) { // справа свободно?
+                place->right = node; // указ на ноду
+                node->parent = place; // указ на родителя
+                return node->parent;
+
+            } else if (!place->left) { // а слева?
+                place->left = node;
+                node->parent = place;
+                return node->parent;
+
+            }
+        }
+    }
+}
+Tree* make_tree(Stack* stack) // строит дерево по стеку
+{
+    Tree* tree = tree_create(); // 
+    tree->parent = NULL;
+
+    TreeItem* value = ValueCreateByStack(stack);
+    tree->value = value; //корень создан
+
+    Tree* justPaste = tree;
+
+    while (st_size(stack) > 0) {
+//                                         left/  ^  |right
+        value = ValueCreateByStack(stack);//   par|          элемент создан, нужно найти ему место
+        Tree* node = tree_create();//           node
+        node->value = value;//             left/     |right
+        justPaste = findVoid(node, justPaste); // сделает tree нужную ссылку(лефт/райт) на созданный элемент
+
+    }
+    return tree;
+}
+
+void tree_print_node(Tree* tree, int indent) // Вывод на экран терминала узлы
+{
+    int i = 0;
+    for (int i = 0; i < indent; ++i) { // Уменьшаем кол-во отступов \t
+        printf("\t");
+    }
+
+    if (isNumNd(tree)) {
+        printf("%d\n", tree->value->number); // Значение узла
+    } else {
+        printf("%c\n", tree->value->Operator->symbol); // Значение узла
+    }
+    //printf("%d\n", tree->value); // Значение узла
+    if(tree->right != NULL) {
+        tree_print_node(tree->right, indent + 1); // Если соседний то значение узла + отступ
+    }
+
+    if(tree->left != NULL) {
+        tree_print_node(tree->left, indent + 1); // Если дочерний узел выводим его + отступ+1
+    }
+    
+}
+
+void tree_print(Tree* tree) // Рекурсивный вызов функции
+{
+    tree_print_node(tree, 0);
+}
 
 void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack* reversedstack) 
 {
@@ -266,7 +617,7 @@ void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack*
                     } else {
                         break;
                     }
-                    ///////////////////////////freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
+                    freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
                     // на него тоже, надо удалить его, нам этот элемент не нужен больше
 
                 }
@@ -287,40 +638,28 @@ void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack*
                 stack_push(resstack, popEl->operator->symbol, INT_MAX);
                  // из стека в строку
                  // пишем в итоговую строку
-                ////////////////////////////////////////freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
+                freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
                 // на него тоже, надо удалить его, нам этот элемент не нужен больше
                 popEl = stack_pop(opstack); // берем новый
             }
-            //freeStackElem(popEl); // 1 раз недоработал, надо скобку еще очистить
+            freeStackElem(popEl); // 1 раз недоработал, надо скобку еще очистить
             symbol = ' ';
         }
 
     }    
 
-    while (st_size(opstack) > 0) {
+    while (st_size(opstack) > 0) { // развернуть для вывода
     
         StackElem* popEl = stack_pop(opstack);
         
         stack_push(resstack, popEl->operator->symbol, INT_MAX);
          // из стека в строку
          // пишем в итоговую строку
-        //////////////////////////////////////////////freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
+        freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
         // на него тоже, надо удалить его, нам этот элемент не нужен больше
     }
-    while (st_size(resstack) > 0) {
-    
-        StackElem* popEl = stack_pop(resstack);
-        
-        if (popEl->number != INT_MAX) {
-            stack_push(reversedstack, ' ', popEl->number);
-        } else if (popEl->operator) {
-            stack_push(reversedstack, popEl->operator->symbol, INT_MAX);
-        }
-         // из стека в строку
-         // пишем в итоговую строку
-        //////////////////////////////////////////////freeStackElem(popEl); // из стека вытащили, он ни на кого не ссылается
-        // на него тоже, надо удалить его, нам этот элемент не нужен больше
-    }
+
+    /////stack_reverse(resstack, reversedstack); // развернуть стек
 
 }
 
@@ -337,22 +676,33 @@ int main()
     //printf("%s", expression);
 
     dijkstra(opstack, resstack, expression, reversedstack);
+///// для печати надо развернуть стек
+    /*while(st_size(resstack) > 0) {
 
-    while(st_size(reversedstack) > 0) {
-
-        StackElem* elem = stack_pop(reversedstack);
+        StackElem* elem = stack_pop(resstack);
         if (elem->number != INT_MAX) {
             printf("%d\t", elem->number);
         } else if (elem->operator) {
             printf("%c\t", elem->operator->symbol);
         }
-    }
+        freeStackElem(elem);
+    }*/
+    //Tree* tree = tree_create();
+    Tree* tree = make_tree(resstack);
+    //printf("%c", tree->value->Operator->symbol);
+    tree_print(tree);
+
+
+
+    stack_destroy(opstack);
+    stack_destroy(resstack);
+    stack_destroy(reversedstack);
 
 
     
 }
 
-/*_tree* tree_find(_tree* tree, TreeItem findVal) // ищет указанное значение в дереве и 
+/*Tree* tree_find(Tree* tree, TreeItem findVal) // ищет указанное значение в дереве и 
 {                                           // возвращает указатель на него
     if (tree == NULL) {
         return NULL;
@@ -372,7 +722,7 @@ int main()
     return NULL;
 }
 
-_tree* tree_min_node(_tree* tree)
+Tree* tree_min_node(Tree* tree)
 {
     if (tree->left != NULL) {
         return tree_min_node(tree->left);
@@ -381,7 +731,7 @@ _tree* tree_min_node(_tree* tree)
     }
 }
 
-void tree_destroy(_tree* tree) // удаляет дерево от листов к корню
+void tree_destroy(Tree* tree) // удаляет дерево от листов к корню
 {
     if (tree->left) {
         tree_destroy(tree->left);
@@ -392,7 +742,7 @@ void tree_destroy(_tree* tree) // удаляет дерево от листов 
     free(tree);
 }
 
-void tree_remove(_tree* tree, TreeItem remoVal) // удаляет элемент дерева
+void tree_remove(Tree* tree, TreeItem remoVal) // удаляет элемент дерева
 {
     if (tree != NULL) {
 
@@ -400,7 +750,7 @@ void tree_remove(_tree* tree, TreeItem remoVal) // удаляет элемент
             if (tree->left->value == remoVal) { // для левого потомка
 
                 if (tree->left->left == NULL && tree->left->right == NULL) { // лист - потомки NULL`евые
-                    _tree* tmp = tree->left;
+                    Tree* tmp = tree->left;
                     tree->left = NULL;
                     free(tmp);
                     free(tree->left);
@@ -408,14 +758,14 @@ void tree_remove(_tree* tree, TreeItem remoVal) // удаляет элемент
                 }
 
                 if (tree->left->left != NULL && tree->left->right == NULL) { // узел 1 потомок - левый
-                    _tree* tmp = tree->left;
+                    Tree* tmp = tree->left;
                     tree->left = tree->left->left;
                     free(tmp);
                     return;
                 }
 
                 if (tree->left->left == NULL && tree->left->right != NULL) { // узел 1 потомок - правый
-                    _tree* tmp = tree->left;
+                    Tree* tmp = tree->left;
                     tree->left = tree->left->right;
                     free(tmp);
                     return;
@@ -435,7 +785,7 @@ void tree_remove(_tree* tree, TreeItem remoVal) // удаляет элемент
             if (tree->right->value == remoVal) { // для правого потомка
 
                 if (tree->right->left == NULL && tree->right->right == NULL) {
-                    _tree* tmp = tree->right;
+                    Tree* tmp = tree->right;
                     tree->right = NULL;
                     free(tmp);
                     free(tree->right);
@@ -443,14 +793,14 @@ void tree_remove(_tree* tree, TreeItem remoVal) // удаляет элемент
                 }
 
                 if (tree->right->left != NULL && tree->right->right == NULL) { // узел 1 потомок - левый
-                    _tree* tmp = tree->right;
+                    Tree* tmp = tree->right;
                     tree->right = tree->right->left;
                     free(tmp);
                     return;
                 }
 
                 if (tree->right->left == NULL && tree->right->right != NULL) { // узел 1 потомок - правый
-                    _tree* tmp = tree->right;
+                    Tree* tmp = tree->right;
                     tree->right = tree->right->right;
                     free(tmp);
                     return;
@@ -476,9 +826,9 @@ void tree_remove(_tree* tree, TreeItem remoVal) // удаляет элемент
         tree_remove(tree->left, remoVal);
     }
 }
-void tree_add(_tree* tree, TreeItem value) // добавляет  потомка
+void tree_add(Tree* tree, TreeItem value) // добавляет  потомка
 {
-    _tree* parent = tree_find(tree, tree->value); // с сохранением порядка в дереве
+    Tree* parent = tree_find(tree, tree->value); // с сохранением порядка в дереве
     if (value < parent->value) {
         if (parent->left == NULL) {
             parent->left = tree_create(value);
@@ -494,7 +844,7 @@ void tree_add(_tree* tree, TreeItem value) // добавляет  потомка
     }
 }
 
-void tree_print_node(_tree* tree, int indent) // Вывод на экран терминала узлы
+void tree_print_node(Tree* tree, int indent) // Вывод на экран терминала узлы
 {
     int i = 0;
     for (int i = 0; i < indent; ++i) { // Уменьшаем кол-во отступов \t
@@ -511,12 +861,12 @@ void tree_print_node(_tree* tree, int indent) // Вывод на экран те
     }
 }
 
-void tree_print(_tree* tree) // Рекурсивный вызов функции
+void tree_print(Tree* tree) // Рекурсивный вызов функции
 {
     tree_print_node(tree, 0);
 }
 */
-/*int deep(_tree* tree, int c) // идет на дно и меряет глубину дна
+/*int deep(Tree* tree, int c) // идет на дно и меряет глубину дна
 {
     if (!tree) {
         return 0;
@@ -541,7 +891,7 @@ void tree_print(_tree* tree) // Рекурсивный вызов функции
 }
 
 
-bool avl_tree(_tree* tree)
+bool avlTree(Tree* tree)
 {
     if (!(tree->left) && !(tree->right)) {
 
@@ -549,7 +899,7 @@ bool avl_tree(_tree* tree)
 
     } else if (tree->left && tree->right) {
 
-        if (avl_tree(tree->left) && avl_tree(tree->right)) {
+        if (avlTree(tree->left) && avlTree(tree->right)) {
             if (abs((deep(tree->left, 0) - deep(tree->right, 0))) <= 1) {
                 return true;
             } else {
@@ -578,7 +928,7 @@ bool avl_tree(_tree* tree)
     
 }
 
-bool avl(_tree* tree, bool flag)
+bool avl(Tree* tree, bool flag)
 {
     if (tree->left && flag) {
         avl(tree->left, flag);
@@ -588,7 +938,7 @@ bool avl(_tree* tree, bool flag)
         avl(tree->right, flag);
     }
 
-    if (avl_tree(tree)) {
+    if (avlTree(tree)) {
         return 1;
     } else {
         return 0;
