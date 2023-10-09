@@ -119,69 +119,7 @@ bool isNumSt(StackElem* elem) // определяет, с чем работае�
         return false;
     }
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-/*void dq_print(Deque deque) // идем по деку, начиная с первого элемента, пока указатель не нуль - 
-{                          // дек закончился
-    if (deque->size != 0) {
-        Item start = deque->leftEnd;
-        while (start) {
-            printf("%d\t", start->value);
-            start = start->right;
-        }
-    } else {
-        printf("Deque is empty");
-    }
-    printf("\n");
-}
 
-void dq_destroy(Deque deque)
-{
-    Item start = deque->leftEnd;
-    while (start != NULL) {
-        dq_pop_front(deque);
-        start = deque->leftEnd;
-    }
-    free(deque);
-}
-
-void dq_erase(Deque deque) {
-    Item start = deque->leftEnd;
-    while (start != NULL) {
-        dq_pop_front(deque);
-        start = deque->leftEnd;
-    }
-}
-
-DqItem dq_pop_max(Deque deque)
-{
-    Deque ddeque = dq_create();
-    Item start = deque->leftEnd;
-    DqItem max = deque->leftEnd->value;
-    int n = deque->size;
-    if (deque) {
-        for (int i = 0; i < n; i++) {
-            dq_push_back(ddeque, start->value);
-            if (start->value > max) {
-                max = start->value;
-            }
-            start = start->right;
-        }
-
-        dq_erase(deque);
-        start = ddeque->leftEnd;
-        for (int i = 0; i < n; i++) {
-            if (start->value != max) {
-                dq_push_back(deque, start->value);
-            }
-            start = start->right;
-        }
-        dq_destroy(ddeque);
-    }
-    return max;
-}
-
-*/
-/////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////Оператор
 Operator* op_create(char symbol) // создаст объект типа оператор и 
 {               // по считанному символу определяет его приоритет
@@ -239,6 +177,15 @@ bool isNumNd(Tree* node) // определяет, с чем работаем (у
     }
 }
 
+/*bool isNumVal(TreeItem* item) // определяет, с чем работаем (значение узла): с числом или с оператором
+{
+    if (!item->Operator) {
+        return true;
+    } else {
+        return false;
+    }
+}*/
+
 TreeItem* ValueCreateByStack(Stack* stack) 
 {
     StackElem* stElem = stack_pop(stack);
@@ -264,180 +211,7 @@ Tree* tree_create()
     return tree;
 }
 
-/*Tree* isVoid(Tree* node)
-{
-    Tree* voidPlace = node;
-    Tree* currentNode = node;
-
-    if (isNumNd(currentNode)) {
-
-        if (!currentNode->right) { // справа свободно?
-            voidPlace = node->right;
-            //voidPlaceParent = voidPlace;
-
-        } else if (!currentNode->left) { // а слева?
-            voidPlace = node->left;
-        }
-    }
-
-    if (!isNumNd(currentNode)) { // нода - не число
-        
-        while (voidPlace == node) {
-
-            if (!currentNode->right) { // справа свободно?
-                voidPlace = node->right;
-                //voidPlaceParent = voidPlace;
-
-            } else if (!currentNode->left) { // а слева?
-                voidPlace = node->left;
-
-            } else if (!isNumNd(currentNode->right)) { // если в правой ветке - оператор, переходим
-                isVoid(currentNode->right); // и проверяем относительно него
-
-            } else if (isNumNd(currentNode->right)) { // если в правой ветке - число, переходим
-                isVoid(currentNode->left);           // к родителю и идем влево
-                
-            } else if (currentNode->parent != NULL) { // дошли до корня
-
-                while (currentNode->parent != NULL) { //пока не дойдем до корня
-                    
-                    isVoid(currentNode->parent);
-                }
-
-            } else if (currentNode->parent == NULL) {
-                isVoid(currentNode->left);
-
-            }
-        }
-    }
-
-    return voidPlace;
-}*/
-
-/*Tree* make_tree(Stack* stack) // строит дерево по стеку
-{
-    Tree* tree = tree_create(); // 
-    tree->parent = NULL;
-
-    TreeItem* value = NULL;
-    value = ValueCreateByStack(stack);
-    tree->value = value; //корень создан
-
-    Tree* node = NULL;
-
-    Tree* voidPlace = tree->right; // свободен правый (начало) UZEL
-    Tree* voidPlaceParent = tree;
-
-    while (st_size(stack) > 0) {
-
-        node = tree_create(); // создали элемент, найдем ему место
-        node->value = ValueCreateByStack(stack);
-        node->parent = voidPlaceParent;
-
-        voidPlace = isVoid(node);
-
-        tree.
-        //voidPlaceParent = voidPlace->parent;
-
-        /*if (!isNumNd(node)) { // может в  отдельную,,,???????????????????????????
-            
-            if (!node->right) { // справа свободно?
-                voidPlace = node->right;
-                voidPlaceParent = voidPlace;
-
-            } else if (!node->left) { // а слева?
-                voidPlace = node->left;
-                voidPlaceParent = voidPlace;
-
-            } else if (node->parent) { // ладно, назад (к родителю)
-                voidPlace = node;
-
-                while (node->parent) {
-                    voidPlace = node->parent;
-                    if (voidPlace->parent) {
-                        voidPlaceParent = node->parent->parent;
-                    } else {
-                        voidPlaceParent = NULL;
-                    }
-                }
-
-            } else if (!node->parent) {
-                
-            }
-        }
-        voidPlace = item;
-
-        if (!item->Operator) { // число, тогда вернемся к родителю
-            loosePlace->parent = 
-        }*/
-
-
-/*    }
-
-}*/
-
-/*Tree* findVoid(Tree* node, Tree* tree) // (куда<-откуда)
-{
-    Tree* currentNode = tree;
-
-    if (isNumNd(currentNode)) { // создано число
-        currentNode = currentNode->parent; // вернуться и рассмотреть родиьтеля
-        findVoid(node, currentNode);
-    }
-
-    if (!isNumNd(currentNode)) { // нода - не число
-
-        if (!currentNode->right) { // справа свободно?
-            currentNode->right = node;
-            tree->right = node;
-            return node;
-
-        } else if (!currentNode->left) { // а слева?
-            currentNode->left = node;
-            tree->left = node;
-            return node;
-
-        } else if (!isNumNd(currentNode->right)) { // если в правой ветке - оператор, переходим
-            currentNode = findVoid(node, currentNode->right->right); // и проверяем относительно него
-            currentNode = findVoid(node, currentNode->right->left);
-
-        } else if (isNumNd(currentNode->right->right)) { // если в правой ветке - число, переходим
-            currentNode = findVoid(node, currentNode->right);           // к родителю и идем влево
-        
-        } else if (!isNumNd(currentNode->left)) { // если в правой ветке - оператор, переходим
-            currentNode = findVoid(node, currentNode->left->right); // и проверяем относительно него
-            currentNode = findVoid(node, currentNode->left->left);
-
-        } else if (isNumNd(currentNode->left->left)) { // если в правой ветке - число, переходим
-            currentNode = findVoid(node, currentNode->left);           // к родителю и идем влево
-        
-        }
-    }
-    return currentNode;
-}
-
-Tree* make_tree(Stack* stack) // строит дерево по стеку
-{
-    Tree* tree = tree_create(); // 
-    tree->parent = NULL;
-
-    TreeItem* value = ValueCreateByStack(stack);
-    tree->value = value; //корень создан
-    Tree* justPaste = tree; // куда только что вставили
-
-    while (st_size(stack) > 0) { //             root
-//                                         left/  ^  |right
-        value = ValueCreateByStack(stack);//   par|          элемент создан, нужно найти ему место
-        Tree* node = tree_create();//           node
-        node->value = value;//             left/     |right
-        justPaste = findVoid(node, justPaste); // сделает tree нужную ссылку(лефт/райт) на созданный элемент
-
-    }
-
-    return tree;
-}*/
-
-Tree* findVoid(Tree* node, Tree* place) // (куда<-откуда)
+Tree* findVoid(Tree* node, Tree* place) // (куда<-откуда) ищет место для ноды
 {
     if (!isNumNd(node)) { // нода - оператор
 
@@ -513,6 +287,7 @@ Tree* findVoid(Tree* node, Tree* place) // (куда<-откуда)
         }
     }
 }
+
 Tree* make_tree(Stack* stack) // строит дерево по стеку
 {
     Tree* tree = tree_create(); // 
@@ -560,6 +335,75 @@ void tree_print_node(Tree* tree, int indent) // Вывод на экран те�
 void tree_print(Tree* tree) // Рекурсивный вызов функции
 {
     tree_print_node(tree, 0);
+}
+
+Tree* tree_findPow(Tree* tree) // ищет указанное значение в дереве "^" и 
+{                             // возвращает указатель на него
+
+    if (!isNumNd(tree) && tree->value->Operator->symbol == '^') {
+        return tree;
+    }
+
+    if (tree->right) {
+        Tree* treeRes = tree_findPow(tree->right);
+        if (treeRes) {
+            return treeRes;
+        }
+
+        //tree_findPow(tree->right);
+    }
+    if (tree->left) {
+        Tree* treeRes = tree_findPow(tree->left);
+        if (treeRes) {
+            return treeRes;
+        }
+
+        //tree_findPow(tree->left);
+    }
+
+    return NULL;
+}
+
+void freeTreeSheet(Tree* node) // чистит одну ноду
+{
+    node->parent = NULL;
+    if (node->value->Operator) {
+        free(node->value->Operator);
+    }
+    free(node->value);
+}
+
+void tree_destroy(Tree* tree) // удаляет дерево от листов к корню
+{
+    if (tree->left) {
+        tree_destroy(tree->left);
+    }
+    if (tree->right) {
+        tree_destroy(tree->right);
+    }
+    freeTreeSheet(tree);
+}
+
+int poww(int num, int pow) // целочисл степень
+{
+    int res = 1;
+    for (int i = 0; i < pow; ++i) {
+        res *= num;
+    }
+    return res;
+}
+
+void calcPow(Tree* node)
+{
+    int calculated = poww(node->left->value->number, node->right->value->number);
+    node->value->number = calculated; // посчитана степень
+    free(node->value->Operator); // уже не оператор
+    node->value->Operator = NULL; // вот
+
+    freeTreeSheet(node->left); // избавляемся от операндов
+    freeTreeSheet(node->right);
+    node->left = NULL; 
+    node->right = NULL;
 }
 
 void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack* reversedstack) 
@@ -663,11 +507,109 @@ void dijkstra(Stack* opstack, Stack* resstack, char expression[STR_SIZE], Stack*
 
 }
 
+void parsedPrint(Stack* resstack)
+{
+    Stack* reversed = stack_create();
+    stack_reverse(resstack, reversed);
+
+    while(st_size(reversed) > 0) {
+
+        StackElem* elem = stack_pop(reversed);
+        if (elem->number != INT_MAX) {
+            printf("%d ", elem->number);
+        } else if (elem->operator) {
+            printf("%c ", elem->operator->symbol);
+        }
+        freeStackElem(elem);
+    }
+    printf("\n");
+    stack_destroy(resstack);
+    stack_destroy(reversed);
+}
+
+/*void exprPrint(Tree* tree)
+{
+    if (!isNumNd(node)) { // нода - оператор
+
+        if (!place->right) { // справа свободно?
+            place->right = node; // указ на ноду
+            node->parent = place; // указ на родителя
+            return node;
+
+        } else if (!place->left) { // а слева?
+            place->left = node;
+            node->parent = place;
+            return node;
+
+        } else {
+
+            while (place->left != NULL && place->right != NULL) {
+                if (place->parent) {
+                    place = place->parent;
+                } else if (place->left) { //ROOT  вдруг нету левого?
+                    place = place->left; // есть - идем влево
+                } else {//иначе остаемся
+                }
+            }
+            if (!place->right) { // справа свободно?
+                place->right = node; // указ на ноду
+                node->parent = place; // указ на родителя
+                return node;
+
+            } else if (!place->left) { // а слева?
+                place->left = node;
+                node->parent = place;
+                return node;
+
+            }
+
+        }
+
+    } else if (isNumNd(node)) { // нода - число
+
+        if (!place->right) { // справа свободно?
+            place->right = node; // указ на ноду
+            node->parent = place; // указ на родителя
+
+            return node->parent;
+
+        } else if (!place->left) { // а слева?
+            place->left = node;
+            node->parent = place;
+
+            return node->parent;
+
+        } else {
+
+            while (place->left != NULL && place->right != NULL) {
+                if (place->parent) {
+                    place = place->parent;
+                } else if (place->left) { //ROOT  вдруг нету левого?
+                    place = place->left; // есть - идем влево
+                } else {//иначе остаемся
+                }
+            }
+            if (!place->right) { // справа свободно?
+                place->right = node; // указ на ноду
+                node->parent = place; // указ на родителя
+                return node->parent;
+
+            } else if (!place->left) { // а слева?
+                place->left = node;
+                node->parent = place;
+                return node->parent;
+
+            }
+        }
+    }
+}*/
 
 int main()
 {
-    Stack* opstack = stack_create();
-    Stack* resstack = stack_create();
+    Stack* opstack1 = stack_create();
+    Stack* opstack2 = stack_create();
+    Stack* resstack1 = stack_create();
+    Stack* resstack2 = stack_create();
     Stack* reversedstack = stack_create();
     char expression[100];
     printf("Введите мат выражение, в конце нажмите энтер:\n");
@@ -675,7 +617,7 @@ int main()
     expression[strlen(expression)-1] = '\0'; // теперь у нас норм строка с пробелами, без лишнего
     //printf("%s", expression);
 
-    dijkstra(opstack, resstack, expression, reversedstack);
+    dijkstra(opstack1, resstack1, expression, reversedstack); // стек для вывода
 ///// для печати надо развернуть стек
     /*while(st_size(resstack) > 0) {
 
@@ -688,15 +630,26 @@ int main()
         freeStackElem(elem);
     }*/
     //Tree* tree = tree_create();
-    Tree* tree = make_tree(resstack);
+    parsedPrint(resstack1);
+
+    dijkstra(opstack2, resstack2, expression, reversedstack); // стек для дерева
+
+    Tree* tree = make_tree(resstack2);
     //printf("%c", tree->value->Operator->symbol);
     tree_print(tree);
 
+    Tree* item;
 
+    while ((item = tree_findPow(tree)) != NULL) {
+        calcPow(item);
+    }
 
-    stack_destroy(opstack);
-    stack_destroy(resstack);
-    stack_destroy(reversedstack);
+    tree_print(tree);
+    //printf("%c", item->value->Operator->symbol); //
+    //exprPrint(tree);
+    stack_destroy(opstack2);
+    stack_destroy(resstack2);
+    tree_destroy(tree);
 
 
     

@@ -14,6 +14,11 @@ void factorial(long int n)
 
 int main()
 {
-    factorial(3);
+    int a = 0, b = 0;
+
+    while ((a = b + 2) != 0) {
+        printf("%d ", a);
+        b--;
+    }
 } 
 
