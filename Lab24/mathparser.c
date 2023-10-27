@@ -62,7 +62,7 @@ void stack_push(Stack* stack, char symbol, int number) // положить в с
     elemSt = NULL;
 }
 
-StackElem* stack_pop(Stack* stack) // мы его отвязали, не забыть почистить ///////////////////
+StackElem* stack_pop(Stack* stack) // мы его отвязали, не забыть почистить //////////////////////////////////////////
 {
     StackElem* tmp = stack->top; // влюбом случае вытаскиваем верхий
     if (stack->top->next) { // указатель ибо обновляем, либо нет
@@ -84,7 +84,7 @@ void freeStackElem(StackElem* stackElem) // очистка вытащенног�
     free(stackElem);
 }
 
-void stack_destroy(Stack* stack)
+void stack_destroy(Stack* stack) // kill the stack
 {
     while (stack->size > 0) {
         StackElem* deleted = stack_pop(stack);
@@ -148,9 +148,8 @@ int checkPriority(char symbol) // проверит приоритет симво
         case ')':
             return 0;     break;
         case ' ': 
-            return -1;    break; // -1 значит, что это число, а не оператор
+            return -1;    break;
         default:
-            //printf("Неправильный ввод, ведите другое мат выражение с допустимым набором операций\n");
             return INT_MIN;
     }
 }
@@ -176,15 +175,6 @@ bool isNumNd(Tree* node) // определяет, с чем работаем (у
         return false;
     }
 }
-
-/*bool isNumVal(TreeItem* item) // определяет, с чем работаем (значение узла): с числом или с оператором
-{
-    if (!item->Operator) {
-        return true;
-    } else {
-        return false;
-    }
-}*/
 
 TreeItem* ValueCreateByStack(Stack* stack) 
 {
@@ -321,7 +311,6 @@ void tree_print_node(Tree* tree, int indent) // Вывод на экран те�
     } else {
         printf("%c\n", tree->value->Operator->symbol); // Значение узла
     }
-    //printf("%d\n", tree->value); // Значение узла
     if(tree->right != NULL) {
         tree_print_node(tree->right, indent + 1); // Если соседний то значение узла + отступ
     }
@@ -350,7 +339,6 @@ Tree* tree_findPow(Tree* tree) // ищет указанное значение �
             return treeRes;
         }
 
-        //tree_findPow(tree->right);
     }
     if (tree->left) {
         Tree* treeRes = tree_findPow(tree->left);
@@ -358,7 +346,6 @@ Tree* tree_findPow(Tree* tree) // ищет указанное значение �
             return treeRes;
         }
 
-        //tree_findPow(tree->left);
     }
 
     return NULL;
@@ -527,29 +514,6 @@ void parsedPrint(Stack* resstack)
     stack_destroy(reversed);
 }
 
-/*void exprPrint(Tree* node)
-{
-    if (isNumNd(node->left) && isNumNd(node->right)) {
-        printf("(%d%c%d)", node->left->value->number, node->value->Operator->symbol, node->right->value->number);
-    } else {
-        
-        if (!isNumNd(node->left) && !isNumNd(node->right)) {
-            exprPrint(node->left);
-            printf("%c", node->value->Operator->symbol);
-            exprPrint(node->right);
-        }
-        if (!isNumNd(node->left) && isNumNd(node->right)) {
-            exprPrint(node->left);
-        }
-        if (isNumNd(node->left) && !isNumNd(node->right)) {
-            exprPrint(node->right);
-        }
-
-    }
-}*/
-
-
-
 
 void print_node(Tree* tree, int l, int r) 
 { //печать узла
@@ -566,24 +530,30 @@ void print_node(Tree* tree, int l, int r)
         return;
     }
 
-    if (!isNumNd(tree->right))
-        print_node(tree->right, l, 0);
-    else
-        print_node(tree->right, l, 0);
-    //decoding(tree);
+    if (!isNumNd(tree->left) && tree->left->value->Operator->priority < tree->value->Operator->priority) {
+        print_node(tree->left, l + 1, 1);
+    } else if (!isNumNd(tree->left)) {
+        print_node(tree->left, l, 0);
+    } else {
+        print_node(tree->left, l, 0);
+    }
+
     if (!isNumNd(tree)) {
         printf("%c", tree->value->Operator->symbol);
     } else if (isNumNd(tree)) {
         printf("%d", tree->value->number);
     }
-    //decoding
-    if (!isNumNd(tree->left))
-        print_node(tree->left, 0, r);
-    else
-        print_node(tree->left, 0, r);
+    
+    if (!isNumNd(tree->right) && tree->right->value->Operator->priority < tree->value->Operator->priority) {
+        print_node(tree->right, 1, r + 1);
+    } else if (!isNumNd(tree->right)) {
+        print_node(tree->right, 0, r);
+    } else {
+        print_node(tree->right, 0, r);
+    }
 }
 
-void print_infix(Tree* tree) { //печать выражения в обычном виде
+void print_expression(Tree* tree) { //печать выражения в обычном виде
     print_node(tree, 0, 0);
     printf("\t");
 }
@@ -641,7 +611,7 @@ int main()
     while(node) {
         exprPrint(node);
     }*/
-    print_infix(tree);
+    print_expression(tree);
     stack_destroy(opstack2);
     stack_destroy(resstack2);
     tree_destroy(tree);

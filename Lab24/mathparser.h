@@ -9,27 +9,6 @@
 #include <string.h>
 
 
-/*typedef enum Operator {
-    ADD          = '+',
-    SUBSTRACT    = '-',
-    MILTIPLY     = '*',
-    DIVIDE       = '/',
-    LEFTBRACKET  = '(',
-    RIGHTBRACKET = ')',
-    POWER        = '^',
-} Operator;
-
-typedef enum Priority
-{
-    ADD          = 1,
-    SUBSTRACT    = 1,
-    MILTIPLY     = 2,
-    DIVIDE       = 2,
-    LEFTBRACKET  = 0,
-    RIGHTBRACKET = 0,
-    POWER        = 4,
-} Priority;*/
-
 
 //Оператор
 typedef struct _Operator { // тип оператор, имеет приоритет и значение мат оператора
